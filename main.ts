@@ -1,15 +1,12 @@
-import express from "express"
+import express from "express";
+import fs from "fs";
+import todo from "./api/todo";
+import bodyParser from "body-parser";
 
-const app = express()
+const app = express();
 
-app.get("/", (req, res) => {
-    res.send("Hello World!")
-})
-
-app.get("/corona", (req, res) => {
-    res.send("Hello corona!")
-})
-
-app.listen(3000, ()=> {
-    console.log("server is started")
-})
+app.use(bodyParser.json());
+app.use("/", todo);
+app.listen(3000, () => {
+  console.log("server is started");
+});
