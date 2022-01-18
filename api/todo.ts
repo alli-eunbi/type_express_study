@@ -1,6 +1,7 @@
 import { TODO } from "../types/todo";
 import express from "express";
 import fs from "fs";
+import { toEditorSettings } from "typescript";
 
 const todo = express();
 
@@ -45,6 +46,7 @@ todo.post("/todos", (req, res) => {
     return res.send(newTodos);
   }
 
+  //*새로운 todo 추가
   const newId = todos[todos.length - 1].id + 1;
   const newTodo: TODO = {
     id: newId,
@@ -60,11 +62,46 @@ todo.post("/todos", (req, res) => {
       todos: newTodos,
     })
   );
-
   res.statusCode = 200;
   return res.send(newTodos);
 });
-todo.patch("/todo/:id", () => {});
-todo.delete("/todos", () => {});
+
+//* todo 수정하기
+todo.patch("/todos/:id", (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return (res.statusCode = 400);
+  }
+  const buffer = fs.readFileSync("./todos.json", { encoding: "utf8" });
+  const { todos }: { todos: TODO[] } = JSON.parse(buffer);
+
+  const index = todos.findIndex((todos) => todos.id === Number(id));
+  if (index === -1) {
+    return (res.statusCode = 400);
+  }
+  todos[index].completed = !todos[index].completed;
+
+  fs.writeFileSync("./todos.json", JSON.stringify({ todos }));
+  res.statusCode = 200;
+  return res.send(todos);
+});
+
+todo.delete("/todos/:id", (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return (res.statusCode = 400);
+  }
+  const buffer = fs.readFileSync("./todos.json", { encoding: "utf8" });
+  const { todos }: { todos: TODO[] } = JSON.parse(buffer);
+  const index = todos.findIndex((todos) => todos.id === Number(id));
+  if (index === -1) {
+    return (res.statusCode = 400);
+  }
+  todos.splice(index, 1);
+  fs.writeFileSync("./todos.json", JSON.stringify({ todos }));
+  res.statusCode = 200;
+  return res.send(todos);
+});
 
 export default todo;
