@@ -8,6 +8,7 @@ const auth = express();
 
 auth.post("/auth/signup", (req, res) => {
   const { name, email, password } = req.body;
+  console.log(name, email);
   if (!email || !password) {
     res.statusCode = 400;
     return res.send("회원가입 실패");
@@ -16,15 +17,16 @@ auth.post("/auth/signup", (req, res) => {
     return res.send("패스워드 길이 바꿔줘");
   }
   function email_check(email: string) {
-    var reg =
+    //이메일 확인 정규 표현식
+    const emailCheckReg =
       /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
 
-    return reg.test(email);
+    return emailCheckReg.test(email);
   }
   const buffer = fs.readFileSync("./users.json", { encoding: "utf8" });
   const { users }: { users: USER[] } = JSON.parse(buffer);
   if (
-    users.findIndex((users) => {
+    users.some((users) => {
       users.email === email;
     })
   ) {
