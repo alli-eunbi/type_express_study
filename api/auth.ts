@@ -80,25 +80,36 @@ auth.get("/me", (req, res) => {
   console.log(decoded_user);
 });
 
-auth.get("/login", (req, res) => {
+auth.post("/login", (req, res) => {
   const { email, password } = req.body;
   const buffer = fs.readFileSync("./users.json", { encoding: "utf8" });
   const { users }: { users: USER[] } = JSON.parse(buffer);
-  //*로그인 성공 케이스
-  if (
-    users.some((_user) => _user.email === email) &&
-    users.some((_user) => bcrypt.compareSync(password, _user.password))
-  ) {
-    res.statusCode = 200;
-    return res.send("로그인 성공!");
-  } else {
-    console.log(
-      users.some((_user) => bcrypt.compareSync(password, _user.password))
-    );
+  //*로그인 실패 케이스
+  if (!email || !password) {
     res.statusCode = 400;
-    return res.send("로그인 실패!");
+    return res.send("아이디와 비밀번호를 입력해주세요");
   }
+  if (!users.some((_user) => _user.email === email)) {
+    res.statusCode = 400;
+    return res.send("아이디가 틀렸습니다.");
+  }
+  if (!users.some((_user) => bcrypt.compareSync(password, _user.password))) {
+    res.statusCode = 400;
+    return res.send("비밀번호가 틀렸습니다.");
+  }
+
+  //* user index로 토큰 생성
+  if (!process.env.JWT_SECRET_KEY) {
+    res.statusCode = 500;
+    return res.end();
+  }
+  const id = users.findIndex((_user) => {
+    _user.email === email;
+    return _user.id;
+  });
+  const token = jwt.sign(String(id), process.env.JWT_SECRET_KEY);
+  res.statusCode = 200;
+  res.setHeader("Set-Cookie", `access_token=${token};`);
+  return res.send(token);
 });
 export default auth;
-
-//! bcrypt 비밀번호 암호화 저장,  로그인 : 비밀번호를 복호화해서 비밀번호 맞는지 확인, token return,
