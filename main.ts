@@ -9,7 +9,8 @@ import auth from "./api/auth";
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/", todo);
 app.use("/", auth);
 app.listen(3000, () => {
