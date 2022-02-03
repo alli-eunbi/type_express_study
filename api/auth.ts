@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 
 const auth = express();
 
-auth.post("/auth/signup", (req, res) => {
+auth.post("/auth/signup", async (req, res) => {
   const { name, email, password } = req.body;
 
   //*회원 가입 실패 케이스
@@ -44,7 +44,7 @@ auth.post("/auth/signup", (req, res) => {
   const saltRounds = 10;
   //salt, hash 따로 생성
   const salt = bcrypt.genSaltSync(saltRounds);
-  const hash = bcrypt.hashSync(password, salt);
+  const hash = await bcrypt.hash(password, salt);
   console.log(hash);
   //user index, hash로 비번 저장
   const newUser: USER = {
@@ -112,4 +112,6 @@ auth.post("/login", (req, res) => {
   res.setHeader("Set-Cookie", `access_token=${token};`);
   return res.send(token);
 });
+
+// auth.delete();
 export default auth;
