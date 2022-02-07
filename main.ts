@@ -27,6 +27,7 @@ app.use("/", auth);
 //       res.statusCode = 401;
 //       return res.send("권한없음");
 //     }
+// req.userId= id
 //     next();
 //   } catch (e) {
 //     res.statusCode = 500;
