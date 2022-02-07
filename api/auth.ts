@@ -113,5 +113,5 @@ auth.post("/login", (req, res) => {
   return res.send(token);
 });
 
-// auth.delete();
+auth.delete("/logout", (req, res) => {});
 export default auth;
